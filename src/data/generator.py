@@ -1,13 +1,17 @@
 """
 Data generation module for synthetic sequence modeling.
 """
-import torch
+
+from collections.abc import Callable
+
 import numpy as np
-from typing import Callable, Set, Tuple
+import torch
 from torch.utils.data import TensorDataset
 
 
-def generate_recursive(n_first: int, vocab_size: int, next_prob: float) -> tuple[np.ndarray, np.ndarray, int, float]:
+def generate_recursive(
+    n_first: int, vocab_size: int, next_prob: float
+) -> tuple[np.ndarray, np.ndarray, int, float]:
     """Generates initial parameters for a recursive sequence."""
     assert 0 < vocab_size
     initial = np.random.randint(0, vocab_size, n_first)
@@ -18,7 +22,9 @@ def generate_recursive(n_first: int, vocab_size: int, next_prob: float) -> tuple
 class SeqGen:
     """Generates recurrent sequences with stochastically repeating terms."""
 
-    def __init__(self, initial: np.ndarray, coeffs: np.ndarray, size: int, next_prob: float) -> None:
+    def __init__(
+        self, initial: np.ndarray, coeffs: np.ndarray, size: int, next_prob: float
+    ) -> None:
         assert len(coeffs) == len(initial)
         self.initial = initial
         self.coeffs = coeffs
@@ -26,14 +32,14 @@ class SeqGen:
         self.next_prob = next_prob
         self.current = initial
 
-    def __iter__(self) -> 'SeqGen':
+    def __iter__(self) -> "SeqGen":
         return self
 
     def __next__(self) -> int:
         if np.random.random() < self.next_prob:
             new = self.current[-1] + 1
         else:
-            new = (self.current @ self.coeffs)
+            new = self.current @ self.coeffs
 
         new %= self.size
         self.current = np.append(self.current, new)[1:]
@@ -52,11 +58,11 @@ class SeqGen:
 
 
 def generate_dataset(
-        gen_factory: Callable[[], 'SeqGen'],
-        seq_len: int,
-        num_entries: int,
-        exclude: list['SeqGen'] | None = None
-) -> Tuple[TensorDataset, Set['SeqGen']]:
+    gen_factory: Callable[[], "SeqGen"],
+    seq_len: int,
+    num_entries: int,
+    exclude: list["SeqGen"] | None = None,
+) -> tuple[TensorDataset, set["SeqGen"]]:
     """
     Generates a TensorDataset consisting of input sequences and next-token targets.
     """

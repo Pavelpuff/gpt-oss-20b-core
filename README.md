@@ -77,7 +77,7 @@ The project uses `uv` for ultra-fast dependency and virtual environment manageme
 
 ```bash
 # Clone the repository and install dependencies
-git clone https://github.com/YourUsername/gpt-oss-20b-core.git
+git clone https://github.com/Pavelpuff/gpt-oss-20b-core.git
 cd gpt-oss-20b-core
 make setup
 
